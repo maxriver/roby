@@ -30,7 +30,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import it.max.roby.risorse.ComandiMovimento;
 import it.max.roby.risorse.comando;
+
+import static it.max.roby.risorse.ComandiMovimento.idComando;
 
 public class Roby extends AppCompatActivity implements
         RecognitionListener {
@@ -44,55 +47,14 @@ public class Roby extends AppCompatActivity implements
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
     private String LOG_TAG = "VoiceRecognitionActivity";
-    private ParseXml mAuthTask = null;
+    boolean contaDomande = true;
     private ProgressDialog dialog;
 
-    public class ParseXml  extends AsyncTask<Void, Void, Boolean>{
-        @Override
-        protected void onPreExecute(){
-        }
-
-        @Override
-        protected void onProgressUpdate(Void[] values) {
-
-        };
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-
-            try {
-                DocumentBuilderFactory strumentiDati = DocumentBuilderFactory.newInstance();
-                DocumentBuilder manipoloDati = strumentiDati.newDocumentBuilder();
-                Document doc = manipoloDati.parse(getAssets().open("comandi.xml")
-                doc.getDocumentElement().normalize();
-                NodeList nodi = doc.getElementsByTagName("comandimovimento");
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            }
-
-
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            //se l'alert è visibile viene rimosso
-            if(dialog.isShowing()) dialog.dismiss();
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_roby);
-        dialog = ProgressDialog.show(Roby.this, "", "Attendi...", false, true);
-        mAuthTask = new ParseXml();
-        mAuthTask.execute((Void) null);
         testoRitornato = (TextView) findViewById(R.id.textView1);
         testoComando = (TextView) findViewById(R.id.textView2);
         Comando = (TextView) findViewById(R.id.textView3);
@@ -245,13 +207,41 @@ public class Roby extends AppCompatActivity implements
         comando c = new comando(testoAscoltato);
 
         ArrayList<String> trovate = c.comandiPossibili;
-        String text2 = "";
-        for (String result : trovate)
-            text2 += result + " ";
+        this.Comando.setText(trovate.toString());
 
-        this.Comando.setText(text2);
+
+        if (c.comandiPossibili.size() == 0 & contaDomande){
+            this.contaDomande = false;
+            // robyParla("non ho capito puoi ripetere");
+            return;
+        } else if (!contaDomande){
+            // robiParla("mi spiace ma non ti capisco prova con un altro comando");
+            this.contaDomande = true;
+            return;
+        }
+        if (c.comandiPossibili.size() > 1){
+            char mov;
+            ArrayList <String> compos=c.comandiPossibili;
+            mov = idComando(compos);
+
+            // controlla che tipo di comando ed esegui
+        }
+        else {
+            // controlla che tipo diComandiMovimento comando con valutazione attinenza
+        }
 
     }
+
+    /* TODO ROBY PARLA
+    public Boolean robyParla(String testo) {
+        Boolean fineElaborazione = Boolean.valueOf(false);
+        robyImpegnato = true;
+        statiDroide statoDroidePrecedente = statoDroide;
+        aggiornaStatoDroide(statiDroide.ANIM_talking);
+        new Handler().postDelayed(new AnonymousClass28(testo, statoDroidePrecedente), 1000);
+        return Boolean.valueOf(true);
+    }
+    */
 
     public static String getErrorText(int errorCode) {
         String message;
