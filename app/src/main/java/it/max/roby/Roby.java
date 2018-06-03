@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
@@ -30,6 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import it.max.roby.risorse.DatabaseRoby;
 import it.max.roby.risorse.comando;
 
 public class Roby extends AppCompatActivity implements
@@ -44,55 +47,33 @@ public class Roby extends AppCompatActivity implements
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
     private String LOG_TAG = "VoiceRecognitionActivity";
-    private ParseXml mAuthTask = null;
-    private ProgressDialog dialog;
-
-    public class ParseXml  extends AsyncTask<Void, Void, Boolean>{
-        @Override
-        protected void onPreExecute(){
-        }
-
-        @Override
-        protected void onProgressUpdate(Void[] values) {
-
-        };
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-
-            try {
-                DocumentBuilderFactory strumentiDati = DocumentBuilderFactory.newInstance();
-                DocumentBuilder manipoloDati = strumentiDati.newDocumentBuilder();
-                Document doc = manipoloDati.parse(getAssets().open("comandi.xml")
-                doc.getDocumentElement().normalize();
-                NodeList nodi = doc.getElementsByTagName("comandimovimento");
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            }
 
 
-            return true;
-        }
 
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            //se l'alert è visibile viene rimosso
-            if(dialog.isShowing()) dialog.dismiss();
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_roby);
-        dialog = ProgressDialog.show(Roby.this, "", "Attendi...", false, true);
-        mAuthTask = new ParseXml();
-        mAuthTask.execute((Void) null);
+
+        boolean dbExist = checkDataBase();
+
+        if (dbExist) {
+            //Il database già esiste, non fa niente
+        } else {
+
+            DatabaseRoby db = new DatabaseRoby(this);
+
+            db.open();
+            long id = db.inserisciComandoMov("vai");
+            id = db.inserisciComandoMov("cammina");
+            // todo copyDataBase() carica i file iniziali
+
+            db.close();
+        }
+
+
+
         testoRitornato = (TextView) findViewById(R.id.textView1);
         testoComando = (TextView) findViewById(R.id.textView2);
         Comando = (TextView) findViewById(R.id.textView3);
@@ -220,7 +201,6 @@ public class Roby extends AppCompatActivity implements
         for (String result : matches)
             text += result + " ";
 
-        testoRitornato.setText(text);
         interpretaComando(text);
 
 
@@ -251,6 +231,29 @@ public class Roby extends AppCompatActivity implements
 
         this.Comando.setText(text2);
 
+    }
+
+    private boolean checkDataBase(){
+
+        SQLiteDatabase checkDB = null;
+
+        try{
+            String myPath = "/data/data/it.max.roby/databases/RobyDB.sqlite";
+            checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+
+        }catch(SQLiteException e){
+
+            //database does't exist yet.
+
+        }
+
+        if(checkDB != null){
+
+            checkDB.close();
+
+        }
+
+        return checkDB != null ? true : false;
     }
 
     public static String getErrorText(int errorCode) {
