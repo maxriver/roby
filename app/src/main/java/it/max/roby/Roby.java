@@ -1,7 +1,6 @@
 package it.max.roby;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,17 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import it.max.roby.risorse.DatabaseRoby;
+import it.max.roby.risorse.comandiMovimenti;
 import it.max.roby.risorse.comando;
 
 public class Roby extends AppCompatActivity implements
@@ -56,24 +50,6 @@ public class Roby extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_roby);
 
-        boolean dbExist = checkDataBase();
-
-        if (dbExist) {
-            //Il database già esiste, non fa niente
-        } else {
-
-            DatabaseRoby db = new DatabaseRoby(this);
-
-            db.open();
-            long id = db.inserisciComandoMov("vai");
-            id = db.inserisciComandoMov("cammina");
-            // todo copyDataBase() carica i file iniziali
-
-            db.close();
-        }
-
-
-
         testoRitornato = (TextView) findViewById(R.id.textView1);
         testoComando = (TextView) findViewById(R.id.textView2);
         Comando = (TextView) findViewById(R.id.textView3);
@@ -81,6 +57,16 @@ public class Roby extends AppCompatActivity implements
         progressBar = (ProgressBar) findViewById(R.id.progressBar1);
         toggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
 
+        List<comandiMovimenti> comandoRoby = null;
+
+        try {
+            XMLPullParserHandler parser = new XMLPullParserHandler();
+            comandoRoby = parser.parse(getAssets().open("comandi_mov.xml"));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        // todo mettere la lista comandoRoby nel metodo dove si confrontano i comandi
 
         progressBar.setVisibility(View.INVISIBLE);
         speech = SpeechRecognizer.createSpeechRecognizer(this);
@@ -233,28 +219,6 @@ public class Roby extends AppCompatActivity implements
 
     }
 
-    private boolean checkDataBase(){
-
-        SQLiteDatabase checkDB = null;
-
-        try{
-            String myPath = "/data/data/it.max.roby/databases/RobyDB.sqlite";
-            checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
-
-        }catch(SQLiteException e){
-
-            //database does't exist yet.
-
-        }
-
-        if(checkDB != null){
-
-            checkDB.close();
-
-        }
-
-        return checkDB != null ? true : false;
-    }
 
     public static String getErrorText(int errorCode) {
         String message;

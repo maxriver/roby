@@ -1,19 +1,22 @@
 package it.max.roby.risorse;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import it.max.roby.XMLPullParserHandler;
 
 public class comando {
 
     public String input_utente;
     public ArrayList<String> comandiPossibili;
-
+    public ArrayList <String> comandiRoby;
     public ArrayList<String> comandiParolaccie;
     public ArrayList<String> comandiScartati;
     public char [] comandi;
 
     public comando(String text_input) {
         this.comandiScartati = new ArrayList();
-
+        this.comandiRoby = new ArrayList();
         this.comandiPossibili = new ArrayList();
         this.comandiParolaccie = new ArrayList();
         this.comandi = new char [2];
@@ -21,6 +24,9 @@ public class comando {
         // m3>muovi_destra m4>muovi_sinistra
         // i?>nonmovimento
         this.input_utente = text_input;
+
+
+
 
         String word_temp = text_input.toLowerCase().replace("6", "sei");
         String[] words = word_temp.split(" ");
@@ -58,6 +64,7 @@ public class comando {
     }
 
     public static char [] verificaMovimento(ArrayList <String> paroleComandoMovimento, ArrayList <String> paroleAscolto){
+
 
         char [] idcom= new char[2];
         for (String list : paroleAscolto){
