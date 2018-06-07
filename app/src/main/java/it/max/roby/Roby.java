@@ -3,9 +3,6 @@ package it.max.roby;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -26,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-import it.max.roby.risorse.comandiMovimenti;
 import it.max.roby.risorse.comando;
 
 public class Roby extends AppCompatActivity implements
@@ -41,6 +37,9 @@ public class Roby extends AppCompatActivity implements
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
     private String LOG_TAG = "VoiceRecognitionActivity";
+    private List<Employee> comandoRoby;
+    private String Com="";
+
 
 
 
@@ -57,15 +56,16 @@ public class Roby extends AppCompatActivity implements
         progressBar = (ProgressBar) findViewById(R.id.progressBar1);
         toggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
 
-        List<comandiMovimenti> comandoRoby = null;
+        comandoRoby = null;
 
         try {
             XMLPullParserHandler parser = new XMLPullParserHandler();
-            comandoRoby = parser.parse(getAssets().open("comandi_mov.xml"));
+            this.comandoRoby = parser.parse(getAssets().open("employees.xml"));
         }
         catch (IOException e) {
             e.printStackTrace();
         }
+
         // todo mettere la lista comandoRoby nel metodo dove si confrontano i comandi
 
         progressBar.setVisibility(View.INVISIBLE);
@@ -208,14 +208,21 @@ public class Roby extends AppCompatActivity implements
             testoComando.setText(rispParolaccia);
         }
 
-        comando c = new comando(testoAscoltato);
+        comando c = new comando(testoAscoltato, comandoRoby);
 
         ArrayList<String> trovate = c.comandiPossibili;
+        List<Employee> trovate2 = this.comandoRoby;
+        Com=String.valueOf(c.comandi);
         String text2 = "";
         for (String result : trovate)
             text2 += result + " ";
 
-        this.Comando.setText(text2);
+        this.testoComando.setText(text2);
+
+        String text3 = "";
+        for (Employee result2 : trovate2)
+            text3 += result2 + " ";
+        this.Comando.setText(text3);
 
     }
 

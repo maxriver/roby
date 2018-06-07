@@ -3,30 +3,27 @@ package it.max.roby.risorse;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.max.roby.XMLPullParserHandler;
+import it.max.roby.Employee;
 
 public class comando {
 
     public String input_utente;
     public ArrayList<String> comandiPossibili;
-    public ArrayList <String> comandiRoby;
     public ArrayList<String> comandiParolaccie;
     public ArrayList<String> comandiScartati;
     public char [] comandi;
+    public List<Employee> comandoRoby;
 
-    public comando(String text_input) {
+    public comando(String text_input, List<Employee> comandoRoby ) {
         this.comandiScartati = new ArrayList();
-        this.comandiRoby = new ArrayList();
         this.comandiPossibili = new ArrayList();
         this.comandiParolaccie = new ArrayList();
         this.comandi = new char [2];
+        this.comandoRoby=comandoRoby;
         // m1>muovi_avanti m2>muovi_indietro
         // m3>muovi_destra m4>muovi_sinistra
         // i?>nonmovimento
         this.input_utente = text_input;
-
-
-
 
         String word_temp = text_input.toLowerCase().replace("6", "sei");
         String[] words = word_temp.split(" ");
@@ -48,7 +45,7 @@ public class comando {
             }
         }
 
-        this.comandi=verificaMovimento(comandiRoby,this.comandiPossibili);
+        this.comandi=verificaMovimento(comandoRoby,this.comandiPossibili);
 
 
     }
@@ -63,18 +60,18 @@ public class comando {
         return tipo;
     }
 
-    public static char [] verificaMovimento(ArrayList <String> paroleComandoMovimento, ArrayList <String> paroleAscolto){
+    public static char [] verificaMovimento(List <Employee> paroleComandoMovimento, ArrayList <String> paroleAscolto){
 
 
         char [] idcom= new char[2];
-        for (String list : paroleAscolto){
-            if (paroleComandoMovimento.contains(list)){
+
+            if (paroleComandoMovimento.contains(paroleAscolto)){
                 idcom[0]='m';
-                break;
+
             } else {
                 idcom[0]='i';
             }
-        }
+
 
         idcom[1]='0';
 
