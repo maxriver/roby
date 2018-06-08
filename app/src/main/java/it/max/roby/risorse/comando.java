@@ -12,9 +12,9 @@ public class comando {
     public ArrayList<String> comandiParolaccie;
     public ArrayList<String> comandiScartati;
     public char [] comandi;
-    public List<Employee> comandoRoby;
+    public List<String> comandoRoby;
 
-    public comando(String text_input, List<Employee> comandoRoby ) {
+    public comando(String text_input, List<String> comandoRoby ) {
         this.comandiScartati = new ArrayList();
         this.comandiPossibili = new ArrayList();
         this.comandiParolaccie = new ArrayList();
@@ -60,7 +60,7 @@ public class comando {
         return tipo;
     }
 
-    public static char [] verificaMovimento(List <Employee> paroleComandoMovimento, ArrayList <String> paroleAscolto){
+    public static char [] verificaMovimento(List <String> paroleComandoMovimento, ArrayList <String> paroleAscolto){
 
 
         char [] idcom= new char[2];

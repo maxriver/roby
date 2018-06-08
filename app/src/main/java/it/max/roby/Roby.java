@@ -37,7 +37,7 @@ public class Roby extends AppCompatActivity implements
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
     private String LOG_TAG = "VoiceRecognitionActivity";
-    private List<Employee> comandoRoby;
+    private List<String> comandoRoby;
     private String Com="";
 
 
@@ -211,7 +211,7 @@ public class Roby extends AppCompatActivity implements
         comando c = new comando(testoAscoltato, comandoRoby);
 
         ArrayList<String> trovate = c.comandiPossibili;
-        List<Employee> trovate2 = this.comandoRoby;
+        List<String> trovate2 = this.comandoRoby;
         Com=String.valueOf(c.comandi);
         String text2 = "";
         for (String result : trovate)
@@ -220,7 +220,7 @@ public class Roby extends AppCompatActivity implements
         this.testoComando.setText(text2);
 
         String text3 = "";
-        for (Employee result2 : trovate2)
+        for (String result2 : trovate2)
             text3 += result2 + " ";
         this.Comando.setText(text3);
 
