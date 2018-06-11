@@ -1,9 +1,8 @@
 package it.max.roby.risorse;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
-import it.max.roby.Employee;
 
 public class comando {
 
@@ -12,14 +11,14 @@ public class comando {
     public ArrayList<String> comandiParolaccie;
     public ArrayList<String> comandiScartati;
     public char [] comandi;
-    public List<String> comandoRoby;
+    public ArrayList<String> comandoRoby;
 
-    public comando(String text_input, List<String> comandoRoby ) {
+    public comando(String text_input, ArrayList<String> comandoRoby ) {
         this.comandiScartati = new ArrayList();
         this.comandiPossibili = new ArrayList();
         this.comandiParolaccie = new ArrayList();
-        this.comandi = new char [2];
         this.comandoRoby=comandoRoby;
+        this.comandi = new char [2];
         // m1>muovi_avanti m2>muovi_indietro
         // m3>muovi_destra m4>muovi_sinistra
         // i?>nonmovimento
@@ -45,7 +44,7 @@ public class comando {
             }
         }
 
-        this.comandi=verificaMovimento(comandoRoby,this.comandiPossibili);
+        this.comandi=verificaMovimento(this.comandoRoby,this.comandiPossibili);
 
 
     }
@@ -60,12 +59,12 @@ public class comando {
         return tipo;
     }
 
-    public static char [] verificaMovimento(List <String> paroleComandoMovimento, ArrayList <String> paroleAscolto){
+    public static char [] verificaMovimento(ArrayList <String> paroleComandoMovimento, ArrayList <String> paroleAscolto){
 
 
         char [] idcom= new char[2];
 
-            if (paroleComandoMovimento.contains(paroleAscolto)){
+            if (paroleAscolto.contains(paroleComandoMovimento)){
                 idcom[0]='m';
 
             } else {
@@ -92,6 +91,15 @@ public class comando {
         return idcom;
 
 
+    }
+
+    public static boolean equalList(ArrayList<String> a, ArrayList<String> b){
+        // Check for sizes and nulls
+
+        // Sort and compare the two lists
+        Collections.sort(a);
+        Collections.sort(b);
+        return a.equals(b);
     }
 
 }

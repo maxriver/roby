@@ -18,7 +18,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +42,9 @@ public class Roby extends AppCompatActivity implements
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
     private String LOG_TAG = "VoiceRecognitionActivity";
-    private List<String> comandoRoby;
-    private String Com="";
-
-
-
+    public ArrayList<String> comandoRoby;
+    public ArrayList countries;
+    private String Com = "";
 
 
     @Override
@@ -55,16 +58,35 @@ public class Roby extends AppCompatActivity implements
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar1);
         toggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
+        comandoRoby = new ArrayList<String>();
 
-        comandoRoby = null;
+        countries=null;
+
+        XmlPullParserFactory pullParserFactory;
 
         try {
-            XMLPullParserHandler parser = new XMLPullParserHandler();
-            this.comandoRoby = parser.parse(getAssets().open("employees.xml"));
-        }
-        catch (IOException e) {
+            pullParserFactory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = pullParserFactory.newPullParser();
+
+            InputStream in_s = getApplicationContext().getAssets().open("controlli.xml");
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(in_s, null);
+
+
+            this.comandoRoby = parseXML(parser);
+
+
+
+        } catch (XmlPullParserException e) {
+
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+
+
 
         // todo mettere la lista comandoRoby nel metodo dove si confrontano i comandi
 
@@ -98,6 +120,33 @@ public class Roby extends AppCompatActivity implements
                 }
             }
         });
+
+
+    }
+
+    private ArrayList parseXML(XmlPullParser parser) throws XmlPullParserException, IOException {
+
+        int eventType = parser.getEventType();
+
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            String name;
+            switch (eventType) {
+                case XmlPullParser.START_DOCUMENT:
+                    countries = new ArrayList();
+                    break;
+                case XmlPullParser.START_TAG:
+                    name = parser.getName();
+
+                    if (name.equals("com")) {
+                        String name2 = parser.nextText();
+                        countries.add(name2);
+                    }
+                    break;
+            }
+            eventType = parser.next();
+        }
+
+        return countries;
 
     }
 
@@ -181,8 +230,7 @@ public class Roby extends AppCompatActivity implements
     @Override
     public void onResults(Bundle results) {
         Log.i(LOG_TAG, "onResults");
-        ArrayList<String> matches = results
-                .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         String text = "";
         for (String result : matches)
             text += result + " ";
@@ -208,20 +256,32 @@ public class Roby extends AppCompatActivity implements
             testoComando.setText(rispParolaccia);
         }
 
-        comando c = new comando(testoAscoltato, comandoRoby);
+        comando c = new comando(testoAscoltato, this.comandoRoby);
 
         ArrayList<String> trovate = c.comandiPossibili;
-        List<String> trovate2 = this.comandoRoby;
+
+        // String trovate2 = String.valueOf(c.comandi);
+
         Com=String.valueOf(c.comandi);
+
         String text2 = "";
         for (String result : trovate)
             text2 += result + " ";
-
         this.testoComando.setText(text2);
 
-        String text3 = "";
-        for (String result2 : trovate2)
-            text3 += result2 + " ";
+
+        String text3="";
+
+
+        for(String country:this.comandoRoby)
+        {
+
+            text3+= "comando : "+ country;
+        }
+
+
+
+        // this.Comando.setText(trovate2);
         this.Comando.setText(text3);
 
     }
@@ -234,7 +294,7 @@ public class Roby extends AppCompatActivity implements
                 message = "Audio recording error";
                 break;
             case SpeechRecognizer.ERROR_CLIENT:
-                message = "Client side error";
+                message = "Nessuna Connessione Internet attivata";
                 break;
             case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
                 message = "Insufficient permissions";
@@ -263,4 +323,6 @@ public class Roby extends AppCompatActivity implements
         }
         return message;
     }
+
+
 }
